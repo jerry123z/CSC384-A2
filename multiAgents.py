@@ -202,7 +202,53 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def DFAlphaBeta(self, gameState, agent, depth, alpha=-100000000, beta=100000000):
+            best_move = None
+            value = None
+            if agent >= gameState.getNumAgents():
+                agent = 0
+            # MAX
+            if agent == 0:
+                value = -1000000000
+                for action in gameState.getLegalActions(agent):
+                    successorGameState = gameState.generateSuccessor(0, action)
+                    # if this is not the leaf, search further for best_node
+                    if depth < self.depth*gameState.getNumAgents() - 1 and \
+                            not (successorGameState.isWin() or successorGameState.isLose()):
+                        value, nxt_move = DFAlphaBeta(self, successorGameState, agent+1, depth+1, alpha, beta)
+                    else:
+                        value, nxt_move = self.evaluationFunction(successorGameState), action
+                    if value >= beta:
+                        return value, action
+                    elif value > alpha:
+                        alpha = value
+                        best_move = action
+                value = alpha
+
+            # MIN
+            else:# agent < 0:
+                value = 1000000000
+                # print("I'm Ghost")
+                for action in gameState.getLegalActions(agent):
+                    successorGameState = gameState.generateSuccessor(agent, action)
+                    # if this is not the leaf, search further for best_node
+                    if depth < self.depth*gameState.getNumAgents() - 1 and \
+                            not (successorGameState.isWin() or successorGameState.isLose()):
+                        value, nxt_move = DFAlphaBeta(self, successorGameState, agent+1, depth+1, alpha, beta)
+                        # print(nxt_val)
+                    else:
+                        value, nxt_move = self.evaluationFunction(successorGameState), action
+                    if value <= alpha:
+                        return value, action
+                    elif value < beta:
+                        beta = value
+                        best_move = action
+                value = beta
+
+            return value, best_move
+
+        value, best_move = DFAlphaBeta(self, gameState, 0, 0)
+        return best_move
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
