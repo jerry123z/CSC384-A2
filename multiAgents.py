@@ -215,15 +215,18 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                     # if this is not the leaf, search further for best_node
                     if depth < self.depth*gameState.getNumAgents() - 1 and \
                             not (successorGameState.isWin() or successorGameState.isLose()):
-                        value, nxt_move = DFAlphaBeta(self, successorGameState, agent+1, depth+1, alpha, beta)
+                        nxt_val, nxt_move = DFAlphaBeta(self, successorGameState, agent+1, depth+1, alpha, beta)
                     else:
-                        value, nxt_move = self.evaluationFunction(successorGameState), action
-                    if value >= beta:
-                        return value, action
-                    elif value > alpha:
-                        alpha = value
+                        nxt_val, nxt_move = self.evaluationFunction(successorGameState), action
+
+                    if nxt_val > value:
+                        value = nxt_val
                         best_move = action
-                value = alpha
+                        if value > alpha:
+                            alpha = value
+                            if alpha >= beta:
+                                return value, action
+
 
             # MIN
             else:# agent < 0:
@@ -234,16 +237,18 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                     # if this is not the leaf, search further for best_node
                     if depth < self.depth*gameState.getNumAgents() - 1 and \
                             not (successorGameState.isWin() or successorGameState.isLose()):
-                        value, nxt_move = DFAlphaBeta(self, successorGameState, agent+1, depth+1, alpha, beta)
+                        nxt_val, nxt_move = DFAlphaBeta(self, successorGameState, agent+1, depth+1, alpha, beta)
                         # print(nxt_val)
                     else:
-                        value, nxt_move = self.evaluationFunction(successorGameState), action
-                    if value <= alpha:
-                        return value, action
-                    elif value < beta:
-                        beta = value
+                        nxt_val, nxt_move = self.evaluationFunction(successorGameState), action
+
+                    if nxt_val < value:
+                        value = nxt_val
                         best_move = action
-                value = beta
+                        if value < beta:
+                            beta = value
+                            if beta <= alpha:
+                                return value, action
 
             return value, best_move
 
