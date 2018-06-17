@@ -75,7 +75,7 @@ class ReflexAgent(Agent):
         "*** YOUR CODE HERE ***"
         desire = successorGameState.getScore()
         food = newFood.asList()
-        #if (successorGameState.getScore() == currentGameState.getScore()):
+        # if (successorGameState.getScore() == currentGameState.getScore()):
 
         for i in successorGameState.getGhostPositions():
             if(manhattanDistance(newPos,i) == 0):
@@ -83,7 +83,7 @@ class ReflexAgent(Agent):
             elif (manhattanDistance(newPos,i) < 4):
                 desire -= (3-manhattanDistance(newPos,i))*manhattanDistance(newPos,i)
             else:
-                #go for nearest food
+                # go for nearest food
                 closest_distance = 1000
                 for j in range(len(food)):
                     new_distance = manhattanDistance(newPos,food[j])
@@ -147,49 +147,48 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
 
-
-
-        def DFMinMax(self,gameState, depth):
+        def DFMinMax(self, gameState, agent, depth):
             best_move = None
             value = None
-            #MAX
-            if depth%2 == 0:
+            if agent >= gameState.getNumAgents():
+                agent = 0
+            # MAX
+            if agent == 0:
                 value = -1000000000
                 # print("I'm Pacman")
                 # print("maximum depth is: " + str(self.depth))
                 # print("current depth is: " + str(depth))
-                for action in gameState.getLegalActions(0):
+                for action in gameState.getLegalActions(agent):
                     successorGameState = gameState.generateSuccessor(0, action)
-                    #if this is not the leaf, search further for best_node
-                    if(depth < self.depth):
-                        nxt_val,nxt_move = DFMinMax(self,successorGameState,depth+1)
-                        #print(nxt_val)
+                    # if this is not the leaf, search further for best_node
+                    if depth < self.depth*gameState.getNumAgents() - 1 and \
+                            not (successorGameState.isWin() or successorGameState.isLose()):
+                        nxt_val, nxt_move = DFMinMax(self, successorGameState, agent+1, depth+1)
+                        # print(nxt_val)
                     else:
-                        nxt_val,nxt_move = self.evaluationFunction(gameState),action
-                        print(nxt_val)
-                        print(action)
+                        nxt_val, nxt_move = self.evaluationFunction(successorGameState), action
                     if value < nxt_val:
                         value, best_move = nxt_val, action
 
-            #MIN
-            if depth%2 != 0:
+            # MIN
+            else:# agent < 0:
                 value = 1000000000
                 # print("I'm Ghost")
-                for j in range(1,gameState.getNumAgents()+1):
-                    for action in gameState.getLegalActions(j):
-                        successorGameState = gameState.generateSuccessor(j, action)
-                        #if this is not the leaf, search further for best_node
-                        if(depth!=self.depth):
-                            nxt_val,nxt_move = DFMinMax(self,successorGameState,depth+1)
-                            #print(nxt_val)
-                        else:
-                            nxt_val,nxt_move = self.evaluationFunction(gameState),action
-                            if value > nxt_value:
-                                value, best_move = nxt_val, action
-            
+                for action in gameState.getLegalActions(agent):
+                    successorGameState = gameState.generateSuccessor(agent, action)
+                    # if this is not the leaf, search further for best_node
+                    if depth < self.depth*gameState.getNumAgents() - 1 and \
+                            not (successorGameState.isWin() or successorGameState.isLose()):
+                        nxt_val, nxt_move = DFMinMax(self, successorGameState, agent+1, depth+1)
+                        # print(nxt_val)
+                    else:
+                        nxt_val, nxt_move = self.evaluationFunction(successorGameState), action
+                    if value > nxt_val:
+                        value, best_move = nxt_val, action
+
             return value, best_move
 
-        value, best_move = DFMinMax(self,gameState,0)
+        value, best_move = DFMinMax(self, gameState, 0, 0)
         return best_move
 
 
