@@ -263,7 +263,47 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
           legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        def DFExpectiMax(self, gameState, agent, depth):
+            best_move = None
+            value = None
+            if agent >= gameState.getNumAgents():
+                agent = 0
+            # MAX
+            if agent == 0:
+                value = -1000000000
+                for action in gameState.getLegalActions(agent):
+                    successorGameState = gameState.generateSuccessor(0, action)
+                    # if this is not the leaf, search further for best_node
+                    if depth < self.depth*gameState.getNumAgents() - 1 and \
+                            not (successorGameState.isWin() or successorGameState.isLose()):
+                        nxt_val, nxt_move = DFExpectiMax(self, successorGameState, agent+1, depth+1)
+                    else:
+                        nxt_val, nxt_move = self.evaluationFunction(successorGameState), action
+                    if value < nxt_val:
+                        value, best_move = nxt_val, action
+
+            # MIN
+            else:# agent < 0:
+                total_value = 0.0
+                num_values = 0.0
+                # print("I'm Ghost")
+                for action in gameState.getLegalActions(agent):
+                    successorGameState = gameState.generateSuccessor(agent, action)
+                    # if this is not the leaf, search further for best_node
+                    if depth < self.depth*gameState.getNumAgents() - 1 and \
+                            not (successorGameState.isWin() or successorGameState.isLose()):
+                        nxt_val, nxt_move = DFExpectiMax(self, successorGameState, agent+1, depth+1)
+                        # print(nxt_val)
+                    else:
+                        nxt_val, nxt_move = self.evaluationFunction(successorGameState), action
+                    num_values += 1
+                    total_value += nxt_val
+                value = total_value/num_values
+
+            return value, best_move
+
+        value, best_move = DFExpectiMax(self, gameState, 0, 0)
+        return best_move
 
 def betterEvaluationFunction(currentGameState):
     """
