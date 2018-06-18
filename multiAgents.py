@@ -318,7 +318,41 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # successorGameState = currentGameState.generatePacmanSuccessor(action)
+    # newPos = successorGameState.getPacmanPosition()
+    # newFood = successorGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+    position = currentGameState.getPacmanPosition()
+    foodGrid = currentGameState.getFood()
+    food = foodGrid.asList()
+    desire = currentGameState.getScore()
+
+    for i in range(0,currentGameState.getNumAgents()):
+        if i == 0:
+            continue
+        if currentGameState.getGhostState(i).scaredTimer > 0:
+            desire += 100
+            if(manhattanDistance(position,currentGameState.getGhostPosition(i)) == 0):
+                desire += 1000
+            else:
+                desire += 1/float(manhattanDistance(position,currentGameState.getGhostPosition(i)) + 1)
+        elif(manhattanDistance(position,currentGameState.getGhostPosition(i)) == 0):
+            desire -= 1000
+        else:
+            # go for nearest food
+            closest_distance = 1000
+            total_distance = 0
+
+            for j in range(len(food)):
+                new_distance = manhattanDistance(position,food[j])
+                if new_distance < closest_distance:
+                    closest_distance = new_distance
+                total_distance += new_distance
+
+            desire += 1/float(closest_distance) + 1/float(len(food)+1) * 100
+
+    return desire
 
 # Abbreviation
 better = betterEvaluationFunction
